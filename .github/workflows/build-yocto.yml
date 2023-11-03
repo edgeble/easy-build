@@ -1,0 +1,31 @@
+name: build-yocto runner
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: build-yocto CI-runner 1
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: build
+        run: |
+          docker build -t edgeble/build-yocto build-yocto
+
+      - name: save
+        run: |
+          docker save -o ${{ runner.workspace }}/edgeble-build-yocto edgeble/build-yocto
+
+      - name: Upload output artifacts
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: ${{ runner.workspace }}/edgeble-build-yocto
+          draft: false
